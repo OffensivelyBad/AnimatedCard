@@ -44,7 +44,14 @@ class Deck extends PureComponent {
   onSwipeComplete(direction) {
     const { onSwipeRight, onSwipeLeft } = this.props;
     const item = this.props.data[this.state.index];
+
     direction === 'right' ? onSwipeRight(item) : onSwipeLeft(item);
+    this.setNextCard();
+  }
+
+  setNextCard() {
+    this.setState({ index: this.state.index + 1 });
+    this.position.setValue({ x: 0, y: 0 });
   }
 
   forceSwipe(direction) {
@@ -68,8 +75,10 @@ class Deck extends PureComponent {
   }
 
   renderCards() {
-    return this.props.data.map((item, index) => {
-      if (index === 0) {
+    return this.props.data.map((item, ix) => {
+      if (ix < this.state.index) { return null; }
+      
+      if (ix === this.state.index) {
         return (
           <Animated.View
             key={item.id}
