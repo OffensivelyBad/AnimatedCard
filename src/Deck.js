@@ -8,7 +8,8 @@ const SWIPE_OUT_DURATION = 250;
 class Deck extends PureComponent {
   static defaultProps = {
     onSwipeRight: () => {},
-    onSwipeLeft: () => {}
+    onSwipeLeft: () => {},
+    renderNoMoreCards: () => {}
   };
   constructor(props) {
     super(props);
@@ -75,22 +76,30 @@ class Deck extends PureComponent {
   }
 
   renderCards() {
+    if (this.state.index >= this.props.data.length) {
+      return this.props.renderNoMoreCards();
+    }
+
     return this.props.data.map((item, ix) => {
       if (ix < this.state.index) { return null; }
-      
+
       if (ix === this.state.index) {
         return (
           <Animated.View
             key={item.id}
-            style={this.getCardStyle()}
+            style={[this.getCardStyle(), styles.cardStyle]}
             {...this.panResponder.panHandlers}
           >
             {this.props.renderCard(item)}
           </Animated.View>
         );
       }
-      return this.props.renderCard(item);
-    });
+      return (
+        <Animated.View key={item.id} style={styles.cardStyle}>
+          this.props.renderCard(item);
+        </Animated.View>
+      );
+    }).reverse();
   }
   render() {
     return (
@@ -98,6 +107,13 @@ class Deck extends PureComponent {
         {this.renderCards()}
       </View>
     );
+  }
+}
+
+const styles = {
+  cardStyle: {
+    position: 'absolute',
+    width: SCREEN_WIDTH
   }
 }
 
