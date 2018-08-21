@@ -87,7 +87,7 @@ class Deck extends PureComponent {
         return (
           <Animated.View
             key={item.id}
-            style={[this.getCardStyle(), styles.cardStyle]}
+            style={[this.getCardStyle(), styles.cardStyle, {zIndex:ix * -1}]}
             {...this.panResponder.panHandlers}
           >
             {this.props.renderCard(item)}
@@ -96,12 +96,15 @@ class Deck extends PureComponent {
       }
       else {
         return (
-          <Animated.View key={item.id} style={styles.cardStyle}>
+          <Animated.View
+            key={item.id} 
+            style={[styles.cardStyle, {zIndex:ix * -1}]}
+          >
             {this.props.renderCard(item)}
           </Animated.View>
         );
       }
-    }).reverse();
+    });
   }
 
   render() {
