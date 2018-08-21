@@ -77,11 +77,11 @@ class Deck extends PureComponent {
 
   renderCards() {
     if (this.state.index >= this.props.data.length) {
-      return this.props.renderNoMoreCards();
+      return this.props.renderNoMoreCards()
     }
 
     return this.props.data.map((item, ix) => {
-      if (ix < this.state.index) { return null; }
+      if (ix < this.state.index) { return null }
 
       if (ix === this.state.index) {
         return (
@@ -94,13 +94,16 @@ class Deck extends PureComponent {
           </Animated.View>
         );
       }
-      return (
-        <Animated.View key={item.id} style={styles.cardStyle}>
-          this.props.renderCard(item);
-        </Animated.View>
-      );
+      else {
+        return (
+          <Animated.View key={item.id} style={styles.cardStyle}>
+            {this.props.renderCard(item)}
+          </Animated.View>
+        );
+      }
     }).reverse();
   }
+
   render() {
     return (
       <View>

@@ -42,7 +42,7 @@ export default class App extends React.Component {
         </Text>
         <Button
           backgroundColor='#03A9F4'
-          title="get more!"
+          title='get more!'
         />
       </Card>
     );
