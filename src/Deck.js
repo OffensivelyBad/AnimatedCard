@@ -4,8 +4,6 @@ import {
   Animated, 
   PanResponder, 
   Dimensions,
-  UIManager,
-  LayoutAnimation
 } from 'react-native';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -38,14 +36,16 @@ class Deck extends PureComponent {
       }
     });
 
+    var itemPositions = [];
+    this.props.data.map((item, index) => {
+      const newPosition = new Animated.ValueXY({ x: 0, y: 10 * index });
+      itemPositions.push(newPosition);
+    });
+
+    this.itemPositions = itemPositions;
     this.panResponder = panResponder;
     this.position = position;
     this.state = { index: 0 };
-  }
-
-  componentWillUpdate() {
-    UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
-    LayoutAnimation.spring();
   }
 
   resetPosition() {
@@ -55,6 +55,7 @@ class Deck extends PureComponent {
   }
 
   onSwipeComplete(direction) {
+    this.bounceUp();
     const { onSwipeRight, onSwipeLeft } = this.props;
     const item = this.props.data[this.state.index];
 
@@ -87,6 +88,18 @@ class Deck extends PureComponent {
     }
   }
 
+  bounceUp() {
+    const animations = this.itemPositions.map((position, ix) => {
+      return (
+        Animated.timing(position, {
+          toValue: { x: 0, y: 50 },
+          duration: 1000
+        })
+      );
+    });
+    Animated.sequence(animations).start();
+  }
+
   renderCards() {
     if (this.state.index >= this.props.data.length) {
       return this.props.renderNoMoreCards()
@@ -110,7 +123,7 @@ class Deck extends PureComponent {
         return (
           <Animated.View
             key={item.id} 
-            style={[styles.cardStyle, { zIndex:ix * -1 }, { top: 10 * (ix - this.state.index) }]}
+            style={[this.itemPositions[ix].getLayout(), styles.cardStyle, { zIndex:ix * -1 } ]}
           >
             {this.props.renderCard(item)}
           </Animated.View>
