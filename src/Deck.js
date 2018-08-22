@@ -11,6 +11,8 @@ import {
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SWIPE_THRESHOLD = 0.25 * SCREEN_WIDTH;
 const SWIPE_OUT_DURATION = 250;
+const SCALE_INCREMENTOR = 0.02;
+const POSITION_INCREMENTOR = 12;
 
 class Deck extends PureComponent {
   static defaultProps = {
@@ -39,12 +41,17 @@ class Deck extends PureComponent {
     });
 
     var itemPositions = [];
+    var itemScales = [];
     this.props.data.map((item, index) => {
-      const newPosition = new Animated.ValueXY({ x: 0, y: 10 * index });
+      const newPosition = new Animated.ValueXY({ x: 0, y: POSITION_INCREMENTOR * index });
       itemPositions.push(newPosition);
+
+      const newScale = new Animated.Value(1 - (index * SCALE_INCREMENTOR));
+      itemScales.push(newScale);
     });
 
     this.itemPositions = itemPositions;
+    this.itemScales = itemScales;
     this.panResponder = panResponder;
     this.position = position;
     this.state = { index: 0 };
@@ -96,15 +103,25 @@ class Deck extends PureComponent {
   }
 
   bounceUp() {
-    const animations = this.itemPositions.map((position, ix) => {
+    const positionAnimations = this.itemPositions.map((position, ix) => {
       return (
         Animated.timing(position, {
-          toValue: { x: 0, y: position.__getValue().y - 10 },
+          toValue: { x: 0, y: position.__getValue().y - POSITION_INCREMENTOR },
           duration: 100
         })
       );
     });
-    Animated.sequence(animations).start();
+
+    var scaleAnimations = this.itemScales.map((scale, ix) => {
+      return (
+        Animated.timing(scale, {
+          toValue: scale.__getValue() + SCALE_INCREMENTOR,
+          duration: 100
+        })
+      );
+    });
+    Animated.sequence(scaleAnimations).start();
+    Animated.sequence(positionAnimations).start();
   }
 
   renderCards() {
@@ -130,7 +147,7 @@ class Deck extends PureComponent {
         return (
           <Animated.View
             key={item.id} 
-            style={[this.itemPositions[ix].getLayout(), styles.cardStyle, { zIndex:ix * -1 } ]}
+            style={[this.itemPositions[ix].getLayout(), { transform: [{ scale: this.itemScales[ix] }] }, styles.cardStyle, { zIndex: ix * -1 } ]}
           >
             {this.props.renderCard(item)}
           </Animated.View>
@@ -151,7 +168,11 @@ class Deck extends PureComponent {
 const styles = {
   cardStyle: {
     position: 'absolute',
-    width: SCREEN_WIDTH
+    width: SCREEN_WIDTH,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 5
   },
 }
 
