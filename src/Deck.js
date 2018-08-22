@@ -4,6 +4,8 @@ import {
   Animated, 
   PanResponder, 
   Dimensions,
+  UIManager,
+  LayoutAnimation
 } from 'react-native';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -46,6 +48,11 @@ class Deck extends PureComponent {
     this.panResponder = panResponder;
     this.position = position;
     this.state = { index: 0 };
+  }
+
+  componentWillUpdate() {
+    UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
+    LayoutAnimation.linear();
   }
 
   resetPosition() {
@@ -92,8 +99,8 @@ class Deck extends PureComponent {
     const animations = this.itemPositions.map((position, ix) => {
       return (
         Animated.timing(position, {
-          toValue: { x: 0, y: 50 },
-          duration: 1000
+          toValue: { x: 0, y: position.__getValue().y - 10 },
+          duration: 100
         })
       );
     });
@@ -145,7 +152,7 @@ const styles = {
   cardStyle: {
     position: 'absolute',
     width: SCREEN_WIDTH
-  }
+  },
 }
 
 export default Deck;
