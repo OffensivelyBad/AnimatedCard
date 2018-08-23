@@ -13,6 +13,7 @@ const SWIPE_THRESHOLD = 0.25 * SCREEN_WIDTH;
 const SWIPE_OUT_DURATION = 250;
 const SCALE_INCREMENTOR = 0.02;
 const POSITION_INCREMENTOR = 12;
+const PADDING = 5;
 
 class Deck extends PureComponent {
   static defaultProps = {
@@ -23,6 +24,23 @@ class Deck extends PureComponent {
   constructor(props) {
     super(props);
 
+    this.setupCards();
+    this.state = { index: 0 };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.data !== this.props.data) {
+      this.setupCards();
+      this.setState({ index: 0 });
+    }
+  }
+
+  componentWillUpdate() {
+    UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
+    LayoutAnimation.spring();
+  }
+
+  setupCards() {
     const position = new Animated.ValueXY();
     const panResponder = PanResponder.create({
       onStartShouldSetPanResponder: () => true,
@@ -54,12 +72,6 @@ class Deck extends PureComponent {
     this.itemScales = itemScales;
     this.panResponder = panResponder;
     this.position = position;
-    this.state = { index: 0 };
-  }
-
-  componentWillUpdate() {
-    UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
-    LayoutAnimation.linear();
   }
 
   resetPosition() {
@@ -158,7 +170,7 @@ class Deck extends PureComponent {
 
   render() {
     return (
-      <View>
+      <View style={styles.containerStyle}>
         {this.renderCards()}
       </View>
     );
@@ -168,12 +180,20 @@ class Deck extends PureComponent {
 const styles = {
   cardStyle: {
     position: 'absolute',
-    width: SCREEN_WIDTH,
+    width: SCREEN_WIDTH - (PADDING * 2),
+    marginLeft: PADDING,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.25,
-    shadowRadius: 5
+    shadowRadius: 5,
+    alignSelf: 'center',
+    flex: 1
   },
+  containerStyle: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1
+  }
 }
 
 export default Deck;
